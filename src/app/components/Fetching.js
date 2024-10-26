@@ -1,40 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 
 export default function Home() {
-    const [messages, setMessages] = useState([]);  // State to store multiple messages
-    const [message, setMessage] = useState('');  // Input field for new messages
-    const [socket, setSocket] = useState(null)
+    const [messages, setMessages] = useState([]); // State to store multiple messages
+    const [message, setMessage] = useState(''); // Input field for new messages
+    const socketRef = useRef(null); // Use useRef to store socket instance
 
     useEffect(() => {
-        setSocket(io("http://localhost:3001", {
+        // Create socket connection
+        socketRef.current = io("http://localhost:3001", {
             transports: ["websocket", "polling"],
-            timeout: 5000
-        }));
-    }, []);
+            timeout: 5000,
+        });
 
-
-    useEffect(() => {
-        console.log(socket?.connected);
-
-        socket?.on('connect', () => {
+        // Listen for events
+        socketRef.current.on('connect', () => {
             console.log('Connected to Socket.IO server');
         });
 
-        socket?.on('joined room', (msg) => {
-            setMessages((prevMessages) => [...prevMessages, msg]);  // Append new message to the state
+        socketRef.current.on('joined room', (msg) => {
+            setMessages((prevMessages) => [...prevMessages, msg]); // Append new message to the state
         });
 
-        socket?.on('chat message', (msg) => {
-            setMessages((prevMessages) => [...prevMessages, msg]);  // Append new chat messages
+        socketRef.current.on('chat message', (msg) => {
+            setMessages((prevMessages) => [...prevMessages, msg]); // Append new chat messages
         });
 
-    }, []);
+        // Cleanup on unmount
+        return () => {
+            socketRef.current.disconnect();
+        };
+    }, []); // Empty dependency array ensures this effect runs once
 
     const handleSendMessage = () => {
         if (message.trim()) {
-            socket.emit('chat message', { msg: message });  // Emit chat message to backend
-            setMessage('');  // Clear the input field
+            socketRef.current.emit('chat message', { msg: message }); // Emit chat message to backend
+            setMessage(''); // Clear the input field
         }
     };
 
@@ -58,6 +59,12 @@ export default function Home() {
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSendMessage(); // Call the send message function
+                            e.preventDefault(); // Prevent form submission (if it's inside a form)
+                        }
+                    }}
                     placeholder="Enter your message"
                     className='flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none bg-white text-black'
                 />
