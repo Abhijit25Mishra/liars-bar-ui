@@ -2,13 +2,14 @@ import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 
 export default function Home() {
+    const [name, setName] = useState('');
     const [messages, setMessages] = useState([]); // State to store multiple messages
     const [message, setMessage] = useState(''); // Input field for new messages
     const socketRef = useRef(null); // Use useRef to store socket instance
 
     useEffect(() => {
         // Create socket connection
-        socketRef.current = io("http://localhost:3001", {
+        socketRef.current = io("http://192.168.0.105:3001", {
             transports: ["websocket", "polling"],
             timeout: 5000,
         });
@@ -38,9 +39,36 @@ export default function Home() {
             setMessage(''); // Clear the input field
         }
     };
+    const handleNameChange = () => {
+        socketRef.current.emit('change name', { newName: name });
+        setName('');
+    }
+
 
     return (
         <div className='flex flex-col h-screen'>
+            <div>
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleNameChange(); // Call the send message function
+                            e.preventDefault(); // Prevent form submission (if it's inside a form)
+                        }
+                    }}
+                    placeholder="Your Name"
+                    className='flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none bg-white text-black'
+                />
+                <button
+                    onClick={handleNameChange}
+                    className='ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg'
+                >
+                    Change Name
+                </button>
+            </div>
+
             <div className='text-red-900 text-3xl mb-4'>Chat Room</div>
 
             <div
