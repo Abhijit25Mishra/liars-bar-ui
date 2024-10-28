@@ -1,11 +1,25 @@
 import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { notification } from 'antd';
 
 export default function Home() {
     const [name, setName] = useState('');
     const [messages, setMessages] = useState([]); // State to store multiple messages
     const [message, setMessage] = useState(''); // Input field for new messages
     const socketRef = useRef(null); // Use useRef to store socket instance
+
+    const [api, contextHolder] = notification.useNotification();
+    const openNotification = (pauseOnHover) => () => {
+      api.open({
+        message: 'Notification Title',
+        description:
+          'This is the content of the notification. This is the content of the notification. This is the content of the notification.',
+        showProgress: true,
+        pauseOnHover,
+      });
+    };
+  
+
 
     useEffect(() => {
         // Create socket connection
@@ -26,6 +40,11 @@ export default function Home() {
         socketRef.current.on('chatMessage', (msg) => {
             setMessages((prevMessages) => [...prevMessages, msg]); // Append new chat messages
         });
+
+        socketRef.current.on('errorMsg', (errorMsg) => {
+            console.log(errorMsg);
+            openNotification(true)();
+        })
 
         // Cleanup on unmount
         return () => {
@@ -54,6 +73,7 @@ export default function Home() {
 
     return (
         <div className='flex flex-col h-screen'>
+            {contextHolder}
             <div>
                 <input
                     type="text"
