@@ -6,6 +6,7 @@ export default function Home() {
     const [name, setName] = useState('');
     const [messages, setMessages] = useState([]); // State to store multiple messages
     const [message, setMessage] = useState(''); // Input field for new messages
+    const [roomName, setRoomName] = useState('defaultRoom');
     const socketRef = useRef(null); // Use useRef to store socket instance
 
     const [api, contextHolder] = notification.useNotification();
@@ -41,6 +42,15 @@ export default function Home() {
             setMessages((prevMessages) => [...prevMessages, msg]); // Append new chat messages
         });
 
+        socketRef.current.on('createParty', (roomName) => {
+            setRoomName(roomName);
+        })
+
+        socketRef.current.on('leaveParty', () => {
+            console.log('working');
+            setRoomName('defaultRoom');
+        });
+
         socketRef.current.on('errorMsg', (errorMsg) => {
             console.log(errorMsg);
             openNotification(true)();
@@ -67,14 +77,19 @@ export default function Home() {
         socketRef.current.emit('createParty');
     }
 
+    const leaveParty = () => {
+        socketRef.current.emit('leaveParty', { roomName });
+    }
+
     const handleRoomJoin = () => {
         socketRef.current.emit('joinParty', { roomName: message });
     }
 
     return (
-        <div className='flex flex-col h-screen'>
+        <div className='flex flex-col h-screen w-9/12'>
             {contextHolder}
-            <div>
+
+            <div className='flex flex-row items-center'>
                 <input
                     type="text"
                     value={name}
@@ -86,17 +101,17 @@ export default function Home() {
                         }
                     }}
                     placeholder="Your Name"
-                    className='flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none bg-white text-black'
+                    className='flex-1 p-2 m-2 border border-gray-300 rounded-lg focus:outline-none bg-white text-black'
                 />
                 <button
                     onClick={handleNameChange}
-                    className='ml-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl'
+                    className=' px-4 py-2 m-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl'
                 >
                     Change Name
                 </button>
             </div>
 
-            <div className='text-red-900 text-3xl mb-4'>Chat Room</div>
+            <div className='text-red-900 text-3xl mb-4'>Chat Room - {roomName}</div>
 
             <div
                 className='overflow-y-auto flex-1 p-4 border border-gray-300 rounded-lg'
@@ -154,13 +169,23 @@ export default function Home() {
 
             </div>
 
+            <div className='flex justify-around justify-items-stretch'>
+
             <button
                     onClick={creatingParty}
-                    className='ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg'
-                >
+                    className='m-4 px-4 py-2 bg-blue-500 text-white rounded-lg'
+                    >
                     Create Party
                 </button>
 
+            <button
+                    
+                    onClick={leaveParty}
+                    className='m-4 px-4 py-2 bg-blue-500 text-white rounded-lg'
+                    >
+                    Leave Party
+                </button>
+                    </div>
         </div>
     );
 }
