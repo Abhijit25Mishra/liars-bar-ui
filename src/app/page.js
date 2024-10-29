@@ -17,7 +17,6 @@
 
 'use client'
 
-import Counter from "./components/Counter";
 import Fetching from "./components/Fetching";
 
 export default function Home() {

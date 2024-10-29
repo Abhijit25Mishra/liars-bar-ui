@@ -6,20 +6,19 @@ export default function Home() {
     const [name, setName] = useState('');
     const [messages, setMessages] = useState([]); // State to store multiple messages
     const [message, setMessage] = useState(''); // Input field for new messages
-    const [roomName, setRoomName] = useState('defaultRoom');
+    const [roomName, setRoomName] = useState('Default Room');
+    const [roomPassword, setRoomPassword] = useState('');
     const socketRef = useRef(null); // Use useRef to store socket instance
 
     const [api, contextHolder] = notification.useNotification();
-    const openNotification = (pauseOnHover) => () => {
+    const openNotification = (pauseOnHover, notificationObj) => () => {
       api.open({
-        message: 'Notification Title',
-        description:
-          'This is the content of the notification. This is the content of the notification. This is the content of the notification.',
+        message: notificationObj.title || "notification title",
+        description: notificationObj.description || "description placeholder",
         showProgress: true,
         pauseOnHover,
       });
     };
-  
 
 
     useEffect(() => {
@@ -46,14 +45,17 @@ export default function Home() {
             setRoomName(roomName);
         })
 
+        socketRef.current.on('joinParty', (roomName)=> {
+            setRoomName(roomName);
+        })
+
         socketRef.current.on('leaveParty', () => {
-            console.log('working');
             setRoomName('defaultRoom');
         });
 
-        socketRef.current.on('errorMsg', (errorMsg) => {
-            console.log(errorMsg);
-            openNotification(true)();
+        socketRef.current.on('notification', (notificationObj) => {
+            console.log(notificationObj);
+            openNotification(true, notificationObj)();
         })
 
         // Cleanup on unmount
@@ -78,11 +80,15 @@ export default function Home() {
     }
 
     const leaveParty = () => {
-        socketRef.current.emit('leaveParty', { roomName });
+        socketRef.current.emit('leaveParty', { roomName:roomName });
+    }
+
+    const blockParty = () => {
+        socketRef.current.emit('blockParty',{roomName:roomName});
     }
 
     const handleRoomJoin = () => {
-        socketRef.current.emit('joinParty', { roomName: message });
+        socketRef.current.emit('joinParty', { roomName: message, roomPassword:roomPassword });
     }
 
     return (
@@ -160,12 +166,26 @@ export default function Home() {
                     placeholder="Enter RoomName"
                     className='flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none bg-white text-black'
                 />
+                <input
+                    type="text"
+                    value={roomPassword}
+                    onChange={(e) => setRoomPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleRoomJoin(); // Call the send message function
+                            e.preventDefault(); // Prevent form submission (if it's inside a form)
+                        }
+                    }}
+                    placeholder="Enter Password"
+                    className='flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none bg-white text-black'
+                />
                 <button
                     onClick={handleRoomJoin}
                     className='ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg'
                 >
                     Join
                 </button>
+                
 
             </div>
 
@@ -184,6 +204,14 @@ export default function Home() {
                     className='m-4 px-4 py-2 bg-blue-500 text-white rounded-lg'
                     >
                     Leave Party
+                </button>
+
+            <button
+                    
+                    onClick={blockParty}
+                    className='m-4 px-4 py-2 bg-blue-500 text-white rounded-lg'
+                    >
+                    Block Party
                 </button>
                     </div>
         </div>
