@@ -20,7 +20,6 @@ export default function Home() {
       });
     };
 
-
     useEffect(() => {
         // Create socket connection
         socketRef.current = io("localhost:3001", {
@@ -217,3 +216,4 @@ export default function Home() {
         </div>
     );
 }
+
