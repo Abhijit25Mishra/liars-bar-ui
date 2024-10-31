@@ -1,30 +1,26 @@
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import SocketContext from "../contexts/socketContext";
 
 export const SocketContextProvider = ({ children }) => {
-    const socketRef = useRef(null); 
+    const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        socketRef.current = io("http://localhost:3001", {
+        const newSocket = io("http://localhost:3001", {
             transports: ["websocket", "polling"],
             timeout: 5000,
         });
 
-        console.log("Socket initialized:", socketRef.current);
-
+        setSocket(newSocket);
+        console.log("Socket initialized:", newSocket);
         return () => {
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-                console.log("Socket disconnected");
-            }
+            newSocket.disconnect();
+            console.log("Socket disconnected");
         };
     }, []);
 
-    const value = useMemo(() => ({ socket: socketRef.current }), [socketRef.current]);
-
     return (
-        <SocketContext.Provider value={value}>
+        <SocketContext.Provider value={{ socket }}>
             {children}
         </SocketContext.Provider>
     );

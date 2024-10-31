@@ -7,13 +7,15 @@ const CreatePartyScreen = ({ setMainState }) => {
 
     const [name, setName] = useState('');
     const { socket } = useSocket();
-    
+    console.log("Socket in CreatePartyScreen:", socket);
+
     useEffect(() => {
         if (socket) {
             // // Listen for events from the server
-            socket.on('someEvent', (data) => {
-                console.log('Received data:', data);
-            });
+            // socket.on('someEvent', (data) => {
+            //     console.log('Received data:', data);
+            // });
+
 
             socket.on('createParty', (roomName, roomPassword) => {
                 debugger;
