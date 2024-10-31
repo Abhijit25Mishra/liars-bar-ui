@@ -1,29 +1,43 @@
 import { Input } from "antd";
+import { useState } from "react";
 import Typography from "antd/es/typography/Typography";
 import { CopyOutlined, CopyFilled } from "@ant-design/icons";
 
-const StartScreen = ({ setMainState }) => {
-    const valueToCopy = "123456"; // The value you want to copy
+const CreatePartyScreen = ({ setMainState }) => {
+
+    const [name, setName] = useState('');
+    // const valueToCopy = "123456"; // The value you want to copy
 
     const handleCreateParty = () => {
         setMainState({ view: 'LobbyScreen' });
     };
 
-    const handleCopyToClipboard = () => {
-        navigator.clipboard.writeText(valueToCopy)
-            .then(() => {
-                console.log("Value copied to clipboard:", valueToCopy);
-            })
-            .catch(err => {
-                console.error("Failed to copy: ", err);
-            });
-    };
+    // const handleCopyToClipboard = () => {
+    //     navigator.clipboard.writeText(valueToCopy)
+    //         .then(() => {
+    //             console.log("Value copied to clipboard:", valueToCopy);
+    //         })
+    //         .catch(err => {
+    //             console.error("Failed to copy: ", err);
+    //         });
+    // };
 
     return (
         <div className="flex flex-col w-full h-screen items-center justify-evenly">
             <Typography className="text-gray-200 text-6xl lg:text-9xl md:text-8xl">Liar's Bar</Typography>
-            <div className="flex flex-col w-3/4 items-center md:w-1/2 text-black">
-                <div
+
+
+            <div className="flex flex-col w-3/4 items-center md:w-1/2 ">
+
+                <Input
+                    size="large"
+                    variant="borderless"
+                    className='px-8 py-3 m-4 w-3/4 text-center bg-white text-2xl sm:text-4xl text-black rounded-full tracking-widest'
+                    placeholder="Name"    
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                />
+                {/* <div
                     onClick={handleCopyToClipboard}
                     className='flex items-center justify-between bg-white text-4xl rounded-full cursor-pointer px-4 py-4 md:py-6 m-4 w-3/4' // Match button size
                 >
@@ -35,8 +49,8 @@ const StartScreen = ({ setMainState }) => {
                             {char}
                         </Typography>
                     ))}
-                    <CopyFilled className="ml-2" /> {/* Add margin to the icon for spacing */}
-                </div>
+                    <CopyFilled className="ml-2" /> 
+                </div> */}
 
                 <button
                     onClick={handleCreateParty}
@@ -49,4 +63,4 @@ const StartScreen = ({ setMainState }) => {
     );
 }
 
-export default StartScreen;
+export default CreatePartyScreen;
