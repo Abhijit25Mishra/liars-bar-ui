@@ -1,15 +1,38 @@
 import dynamic from 'next/dynamic';
-import {  useReducer } from 'react';
-import Counter from '@/components/Counter';
+import { useEffect, useReducer } from 'react';
+import { useSocket } from '@/providers/socketContextProvider';
 
-const StartScreen = dynamic(() => import('./StartScreen'), { ssr: false });
-const CreatePartyScreen = dynamic(() => import('./CreatePartyScreen'), { ssr: false });
-const JoinPartyScreen = dynamic(() => import('./JoinPartyScreen'), { ssr: false });
+
+const StartScreen = dynamic(() => import('../components/liarsBar/StartScreen'), { ssr: false });
+const CreatePartyScreen = dynamic(() => import('../components/liarsBar/CreatePartyScreen'), { ssr: false });
+const JoinPartyScreen = dynamic(() => import('../components/liarsBar/JoinPartyScreen'), { ssr: false });
+const LobbyScreen = dynamic(() => import('../components/liarsBar/LobbyScreen'), { ssr: false });
+const GameRoomScreen= dynamic(() => import('../components/liarsBar/GameRoomScreen'), { ssr: false });
 
 export default function Navigator() {
     const initialState = {
         view: 'StartScreen'
     };
+    
+    // useEffect(() => {
+    //     if (socket) {
+    //         // Listen for events from the server
+    //         socket.on('someEvent', (data) => {
+    //             console.log('Received data:', data);
+    //         });
+
+    //         // Cleanup on component unmount
+    //         return () => {
+    //             socket.off('someEvent');
+    //         };
+    //     }
+    // }, [socket]);
+
+    // const handleButtonClick = () => {
+    //     if (socket) {
+    //         socket.emit('someEvent', { /* data */ });
+    //     }
+    // };
     
     const [state, setState] = useReducer((state, newState) => ({ ...state, ...newState }), { ...initialState });
     debugger;
@@ -21,13 +44,19 @@ export default function Navigator() {
                 />
             )}
             {state?.view == 'CreatePartyScreen' && (
-                <>
-                    {/* <Counter/>   */}
-                    <CreatePartyScreen/>
-                </>
+                <CreatePartyScreen
+                    setMainState={setState}
+                />
             )}
             {state?.view == 'JoinPartyScreen' && (
-                <JoinPartyScreen/>
+                <JoinPartyScreen
+                    setMainState={setState}
+                />
+            )}
+            {state?.view == 'LobbyScreen' && (
+                <LobbyScreen
+                    setMainState={setState}
+                />
             )}
         </>
     )
