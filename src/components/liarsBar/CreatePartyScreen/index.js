@@ -1,26 +1,43 @@
 import { Input } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Typography from "antd/es/typography/Typography";
-import { CopyOutlined, CopyFilled } from "@ant-design/icons";
+import { useSocket } from "@/providers/socketContextProvider";
 
 const CreatePartyScreen = ({ setMainState }) => {
 
     const [name, setName] = useState('');
-    // const valueToCopy = "123456"; // The value you want to copy
+    const { socket } = useSocket();
+    
+    useEffect(() => {
+        if (socket) {
+            // // Listen for events from the server
+            socket.on('someEvent', (data) => {
+                console.log('Received data:', data);
+            });
+
+            socket.on('createParty', (roomName, roomPassword) => {
+                debugger;
+                console.log(roomName, roomPassword);
+                // setRoomName(roomName);
+            })
+
+
+            // Cleanup on component unmount
+            return () => {
+                socket.off('createParty'); 
+            };
+        }
+    }, [socket]);
 
     const handleCreateParty = () => {
-        setMainState({ view: 'LobbyScreen' });
+        console.log("this is working");
+        console.log(socket);
+        if (socket) {
+            socket.emit('createParty');
+        }
+        // setMainState({ view: 'LobbyScreen' });
     };
 
-    // const handleCopyToClipboard = () => {
-    //     navigator.clipboard.writeText(valueToCopy)
-    //         .then(() => {
-    //             console.log("Value copied to clipboard:", valueToCopy);
-    //         })
-    //         .catch(err => {
-    //             console.error("Failed to copy: ", err);
-    //         });
-    // };
 
     return (
         <div className="flex flex-col w-full h-screen items-center justify-evenly">
@@ -37,20 +54,6 @@ const CreatePartyScreen = ({ setMainState }) => {
                     value={name} 
                     onChange={(e) => setName(e.target.value)} 
                 />
-                {/* <div
-                    onClick={handleCopyToClipboard}
-                    className='flex items-center justify-between bg-white text-4xl rounded-full cursor-pointer px-4 py-4 md:py-6 m-4 w-3/4' // Match button size
-                >
-                    {valueToCopy.split("").map((char, index) => (
-                        <Typography
-                            key={index}
-                            className="flex-1 text-2xl md:text-3xl lg:text-4xl  text-center" // Flex-grow to distribute space evenly
-                        >
-                            {char}
-                        </Typography>
-                    ))}
-                    <CopyFilled className="ml-2" /> 
-                </div> */}
 
                 <button
                     onClick={handleCreateParty}

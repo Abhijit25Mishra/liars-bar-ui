@@ -14,25 +14,6 @@ export default function Navigator() {
         view: 'StartScreen'
     };
     
-    // useEffect(() => {
-    //     if (socket) {
-    //         // Listen for events from the server
-    //         socket.on('someEvent', (data) => {
-    //             console.log('Received data:', data);
-    //         });
-
-    //         // Cleanup on component unmount
-    //         return () => {
-    //             socket.off('someEvent');
-    //         };
-    //     }
-    // }, [socket]);
-
-    // const handleButtonClick = () => {
-    //     if (socket) {
-    //         socket.emit('someEvent', { /* data */ });
-    //     }
-    // };
     
     const [state, setState] = useReducer((state, newState) => ({ ...state, ...newState }), { ...initialState });
     debugger;
