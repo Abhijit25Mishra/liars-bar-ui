@@ -12,10 +12,8 @@ export const SocketContextProvider = ({ children }) => {
         });
 
         setSocket(newSocket);
-        console.log("Socket initialized:", newSocket);
         return () => {
             newSocket.disconnect();
-            console.log("Socket disconnected");
         };
     }, []);
 
