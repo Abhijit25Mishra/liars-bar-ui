@@ -14,9 +14,10 @@ export default function Navigator() {
         view: 'StartScreen'
     };
     
-    
     const [state, setState] = useReducer((state, newState) => ({ ...state, ...newState }), { ...initialState });
-    debugger;
+    
+    console.log(state, 'state');
+
     return (
         <>
             {state.view == 'StartScreen' && (   
@@ -35,8 +36,12 @@ export default function Navigator() {
                 />
             )}
             {state?.view == 'LobbyScreen' && (
+                
                 <LobbyScreen
                     setMainState={setState}
+                    roomData={state?.roomData}
+                    userName={state?.userName}
+                    usersList={state?.usersList}
                 />
             )}
         </>

@@ -1,10 +1,29 @@
 import { Input } from "antd";
 import Typography from "antd/es/typography/Typography";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSocket } from "@/providers/socketContextProvider";
 
 const StartScreen = ({ setMainState }) => {
     const [name, setName] = useState();
     const [partyCode, setPartyCode] = useState();
+    const { socket } = useSocket();
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('joinParty', (roomData) => {
+                setMainState({ view: 'LobbyScreen', roomData:roomData });
+            })
+
+            socket.on('userListUpdate', (users) => {
+                // const names = users.map(user => user.name);
+                setMainState({ usersList: users });
+            })
+
+            return () => {
+                socket.off('createParty'); 
+            };
+        }
+    }, [socket]);
 
 
     const handlePartyCodeChange = (e) => {
@@ -14,8 +33,9 @@ const StartScreen = ({ setMainState }) => {
     };
 
     const handleJoinParty = () => {
-        console.log("hello");
-        setMainState({view:'LobbyScreen'});
+        setMainState({ userName: name });
+        socket.emit('changeName', { newName: name });
+        socket.emit('joinParty', { roomPassword: partyCode });
     }
 
     return (
