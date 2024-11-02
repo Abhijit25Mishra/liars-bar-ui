@@ -21,6 +21,7 @@ const LobbyScreen = ({ setMainState, roomData, userName, usersList }) => {
     useEffect(() => {
         if (socket) {
             socket.on('userListUpdate', (users) => {
+                setMainState({ usersList: users });
                 SetUsersInRoom(users);
             })
 
@@ -28,6 +29,7 @@ const LobbyScreen = ({ setMainState, roomData, userName, usersList }) => {
                 console.log(readyList);
                 setReadyUsers(readyList);
             })
+
             socket.on('startGame', () => {
                 console.log('going to start game');
                 handleStartGame();                
@@ -35,6 +37,8 @@ const LobbyScreen = ({ setMainState, roomData, userName, usersList }) => {
 
             return () => {
                 socket.off('userListUpdate'); 
+                socket.off('ready');
+                socket.off('startGame');
             };
         }
     }, [socket]);
@@ -55,7 +59,7 @@ const LobbyScreen = ({ setMainState, roomData, userName, usersList }) => {
     };
 
     const handleStartGame = () => {
-        setMainState({ view: "GameRoomScreen", usersList :usersInRoom });
+        setMainState({ view: "GameRoomScreen" });
     }
 
     return (
