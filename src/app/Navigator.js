@@ -44,6 +44,14 @@ export default function Navigator() {
                     usersList={state?.usersList}
                 />
             )}
+            {state?.view == 'GameRoomScreen' && (
+                <GameRoomScreen
+                    setMainState={setState}
+                    roomData={state?.roomData}
+                    userName={state?.userName}
+                    usersList={state?.usersList}
+                />
+            )}
         </>
     )
 }

@@ -2,6 +2,7 @@ import { Input } from "antd";
 import Typography from "antd/es/typography/Typography";
 import { useState, useEffect } from "react";
 import { useSocket } from "@/providers/socketContextProvider";
+import openNotification from "@/components/commons/notificationUtils";
 
 const StartScreen = ({ setMainState }) => {
     const [name, setName] = useState();
@@ -15,12 +16,19 @@ const StartScreen = ({ setMainState }) => {
             })
 
             socket.on('userListUpdate', (users) => {
-                // const names = users.map(user => user.name);
                 setMainState({ usersList: users });
             })
 
+            socket.on('notification', (notificationMessage) => {
+                console.log(notificationMessage);
+                openNotification(true,notificationMessage)();
+            })
+
             return () => {
-                socket.off('createParty'); 
+                socket.off('joinParty'); 
+                socket.off('userListUpdate'); 
+                socket.off('notification'); 
+                
             };
         }
     }, [socket]);

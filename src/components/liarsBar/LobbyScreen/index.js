@@ -12,17 +12,25 @@ const LobbyScreen = ({ setMainState, roomData, userName, usersList }) => {
     const roomPassword = roomData.roomPassword; 
     const { socket } = useSocket();
     const [usersInRoom, SetUsersInRoom] = useState(usersList ? usersList:[userName]);
+    const [readyUsers, setReadyUsers] = useState([]);
+
 
     console.log(usersInRoom);
 
+
     useEffect(() => {
         if (socket) {
-            console.log("Socket object:", socket);
             socket.on('userListUpdate', (users) => {
-                // console.log("lobby users",users);
-                // const names = users.map(user => user.name);
-                // console.log('lobby users2',names);
                 SetUsersInRoom(users);
+            })
+
+            socket.on('ready', (readyList) => {
+                console.log(readyList);
+                setReadyUsers(readyList);
+            })
+            socket.on('startGame', () => {
+                console.log('going to start game');
+                handleStartGame();                
             })
 
             return () => {
@@ -32,6 +40,9 @@ const LobbyScreen = ({ setMainState, roomData, userName, usersList }) => {
     }, [socket]);
 
 
+    const handleReadyButton = () => {
+        socket.emit('ready', {roomData: roomData, userName:userName});
+    }
 
     const handleCopyToClipboard = () => {
         navigator.clipboard.writeText(roomPassword)
@@ -44,7 +55,7 @@ const LobbyScreen = ({ setMainState, roomData, userName, usersList }) => {
     };
 
     const handleStartGame = () => {
-        
+        setMainState({ view: "GameRoomScreen", usersList :usersInRoom });
     }
 
     return (
@@ -71,19 +82,31 @@ const LobbyScreen = ({ setMainState, roomData, userName, usersList }) => {
             
             </div>
 
-            {usersInRoom.map((user, index) => (
-                <div key={index} className="bg-white w-60 text-black text-4xl py-2 text-center">        
-                    {user}
-                </div>
-            ))}
+            <div className="flex flex-col md:flex-row gap-4 ">
+                {usersInRoom.map((user, index) => (
+                    <div
+                        key={index}
+                        // className="bg-white w-60 text-black text-4xl py-2 text-center"
+                        className={`bg-white w-60 text-black text-4xl py-2 text-center ${readyUsers.includes(user) ? 'text-green-500' : ''}`}
+                    >        
+                        {`${user} ${user === userName ? '(You)' : ''}`}
+                    </div>
+                ))}
+            </div>
 
             <div className="flex flex-col w-3/4 items-center md:w-1/2 text-black">
                 <button
+                    onClick={handleReadyButton}
+                    className='px-8 py-4 m-4 w-3/4 bg-indigo-600 text-xl hover:bg-indigo-700 text-white rounded-full'
+                >
+                    Ready
+                </button>
+                {/* <button
                     onClick={handleStartGame}
                     className='px-8 py-4 m-4 w-3/4 bg-indigo-600 text-xl hover:bg-indigo-700 text-white rounded-full'
                 >
                     Start Game
-                </button>
+                </button> */}
             </div>
         </div>
     );
